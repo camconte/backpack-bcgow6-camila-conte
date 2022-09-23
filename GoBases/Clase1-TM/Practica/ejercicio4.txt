@@ -13,6 +13,8 @@ boolean := false //no es necesario el ; y para que se almacene como tipo bool de
 
 //var sueldo string = 45857.90
 var sueldo string = "45857.90" //para que se almacene como string debemos agregarle las comillas
+//tambien puede ser:
+var sueldo float64 = 45857.90
 
 var nombre string = "Julián" //es correcta
 var nombre = "Julián" //podria omitirse el tipo de dato por la asignacion 
