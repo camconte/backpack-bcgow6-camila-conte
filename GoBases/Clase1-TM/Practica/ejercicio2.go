@@ -8,10 +8,9 @@ package main
 
 import "fmt"
 
-var temperatura int = 17
-var humedad int = 44
-var presion float64 = 1021.0
-
 func main() {
+	var temperatura int = 17
+	var humedad int = 44
+	var presion float64 = 1021.0
 	fmt.Println("La temperatura actual es ", temperatura,"º", " con una humedad del ", humedad, "% y una presión de ", presion, "mb")
 }
