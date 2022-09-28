@@ -4,7 +4,10 @@
 */
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 type SalaryError struct {}
 
@@ -15,6 +18,7 @@ func (err *SalaryError) Error() string {
 func throwSalaryError(salary int) (err error) {
 	if salary < 150_000 {
 		err = &SalaryError{}
+		os.Exit(1)
 	}else{
 		fmt.Println("Debe pagar impuesto")
 	}
@@ -31,7 +35,17 @@ func main()  {
 		fmt.Println(err)
 	}
 
+	salary2 := 140_000
 
+	//sin usar la funcion
+	err1 := SalaryError{}
+
+	if salary2 < 150_000{
+		fmt.Println(err1.Error())
+		os.Exit(1)
+	}else{
+		fmt.Println("Debe pagar impuesto")
+	}
 
 
 }

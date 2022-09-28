@@ -5,12 +5,14 @@ package main
 
 import (
 	"fmt"
+	"os"
 )
 
 
 func throwSalaryError(salary int) (err error) {
 	if salary < 150_000 {
 		err = fmt.Errorf("error: el mínimo imponible es de 150.000 y el salario ingresado es de %d", salary)
+		os.Exit(1)
 	}else{
 		fmt.Println("Debe pagar impuesto")
 	}
@@ -19,7 +21,7 @@ func throwSalaryError(salary int) (err error) {
 
 func main()  {
 	
-	salary := 140_000
+	salary := 160_000
 
 	err := throwSalaryError(salary)
 
@@ -27,4 +29,15 @@ func main()  {
 		fmt.Println(err)
 	}
 
+	salary2 := 140_000
+
+	//sin usar la funcion
+	err1 := fmt.Errorf("error: el mínimo imponible es de 150.000 y el salario ingresado es de %d", salary2)
+
+	if salary2 < 150_000{
+		fmt.Println(err1.Error())
+		os.Exit(1)
+	}else{
+		fmt.Println("Debe pagar impuesto")
+	}
 }
