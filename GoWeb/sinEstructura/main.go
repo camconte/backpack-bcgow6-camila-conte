@@ -2,21 +2,32 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"net/http"
 	"os"
 	"strconv"
+	"time"
+
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type product struct{
-	Id int
-	Name string
-	Colour string
-	Price float64
-	Stock int
-	Code string
-	Published bool
-	CreatedAt string
+	Id int `json:"id"`
+	Name string `json:"name" binding:"required"`
+	Colour string `json:"colour" binding:"required"`
+	Price float64 `json:"price" binding:"required"`
+	Stock int `json:"stock" binding:"required"`
+	Code string `json:"code" binding:"required"`
+	Published bool `json:"published" binding:"required"`
+	CreatedAt string `json:"createdAt"`
 }
+
+
+
+//array en memoria
+var products []product
+
 
 func GetProducts() (products []product, err error){
 	data, err0 := os.ReadFile("./products.json")
@@ -94,6 +105,7 @@ func GetById(c *gin.Context){
 		}
 	}
 
+	//se puede comparar con una estructura vacia
 	productNull := product{
 		Id: 0,
 		Name: "",
@@ -113,6 +125,49 @@ func GetById(c *gin.Context){
 
 }
 
+func SaveProduct() gin.HandlerFunc{
+	return func(c *gin.Context){
+		var bodyReq product
+
+		token := c.GetHeader("token")
+
+		if token != "123456clc" || token == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "you don't have permissions to make that request",
+			})
+			return
+		}
+		
+		if err := c.ShouldBindJSON(&bodyReq); err != nil{
+			
+			//recorremos los errores detallados y los almacenamos para luego mostrarlos todos juntos
+			errorMessages := []string{}
+
+			for _, e := range err.(validator.ValidationErrors) {
+				errorMessage := fmt.Sprintf("the field %s is required", e.Field())
+				errorMessages = append(errorMessages, errorMessage)
+			}
+
+			c.JSON(http.StatusBadRequest, gin.H{
+				"errors": errorMessages,
+			})
+			return
+		}
+
+		//tomo el id del producto en la ultima posicion dle array y lo incremento en 1 para asignarselo al nuevo producto
+		bodyReq.Id = len(products) + 1
+		//se formatea con esos numeros debido a las constantes con las que trabaja Go:
+		//https://stackoverflow.com/questions/20234104/how-to-format-current-time-using-a-yyyymmddhhmmss-format
+
+		bodyReq.CreatedAt = time.Now().Format("02-01-2006")
+
+		products = append(products, bodyReq)
+
+		c.JSON(http.StatusOK, bodyReq)
+
+	}
+}
+
 
 func main(){
 	//creamos el router
@@ -125,11 +180,16 @@ func main(){
 		})
 	})
 
+	pr := router.Group("/products")
+
 	//creamos la ruta para devolver los productos
-	router.GET("/products", GetAll)
+	pr.GET("/", GetAll)
 
 	//ruta para buscar por id
-	router.GET("/products/:id", GetById)
+	pr.GET("/:id", GetById)
+
+	//creamos el endpoint para almacenar un nuevo producto
+	pr.POST("/save", SaveProduct())
 
 	//corremos el servidor
 	router.Run()
