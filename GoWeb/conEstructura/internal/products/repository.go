@@ -27,7 +27,9 @@ type Repository interface {
 	Delete(id int) error
 }
 
-type repository struct{} //implementa los metodos de la interfaz
+type repository struct{
+	db string
+} //implementa los metodos de la interfaz
 
 //devuelve el repo
 func NewRepository() Repository {

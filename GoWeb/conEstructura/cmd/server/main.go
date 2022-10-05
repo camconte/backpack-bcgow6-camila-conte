@@ -4,9 +4,16 @@ import (
 	"github.com/camconte/backpack-bcgow6-camila-conte/GoWeb/conEstructura/cmd/server/handler"
 	"github.com/camconte/backpack-bcgow6-camila-conte/GoWeb/conEstructura/internal/products"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	//leemos el archivo de variables de entorno
+	err := godotenv.Load()
+	if err != nil{
+		panic(err)
+	}
+
 	repository := products.NewRepository()
 	service := products.NewService(repository)
 	p := handler.NewProductHandler(service)

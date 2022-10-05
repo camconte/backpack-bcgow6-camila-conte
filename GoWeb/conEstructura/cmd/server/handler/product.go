@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/camconte/backpack-bcgow6-camila-conte/GoWeb/conEstructura/internal/products"
@@ -34,7 +35,7 @@ func (h *ProductHandler) GetAll() gin.HandlerFunc{
 	return func(ctx *gin.Context){
 		token := ctx.GetHeader("token")
 
-		if token != "123456clc" || token == "" {
+		if token != os.Getenv("TOKEN") {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"error": "you don't have permissions to make that request",
 			})
@@ -56,7 +57,7 @@ func (h *ProductHandler) Store() gin.HandlerFunc{
 	return func(ctx *gin.Context){
 		token := ctx.GetHeader("token")
 
-		if token != "123456clc" || token == "" {
+		if token != os.Getenv("TOKEN") {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"error": "you don't have permissions to make that request",
 			})
@@ -110,7 +111,7 @@ func (h *ProductHandler) Update() gin.HandlerFunc{
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("token")
 
-		if token != "123456clc" || token == "" {
+		if token != os.Getenv("TOKEN") {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"error": "you don't have permissions to make that request",
 			})
@@ -172,7 +173,7 @@ func (h *ProductHandler) UpdateNameAndPrice() gin.HandlerFunc{
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("token")
 
-		if token != "123456clc" || token == "" {
+		if token != os.Getenv("TOKEN") {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"error": "you don't have permissions to make that request",
 			})
@@ -219,7 +220,7 @@ func (h *ProductHandler) Delete() gin.HandlerFunc{
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("token")
 
-		if token != "123456clc" || token == "" {
+		if token != os.Getenv("TOKEN") {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"error": "you don't have permissions to make that request",
 			})
