@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -163,6 +164,87 @@ func (h *ProductHandler) Update() gin.HandlerFunc{
 
 		ctx.JSON(http.StatusOK, updatedProduct)
 
+
+	}
+}
+
+func (h *ProductHandler) UpdateNameAndPrice() gin.HandlerFunc{
+	return func(ctx *gin.Context) {
+		token := ctx.GetHeader("token")
+
+		if token != "123456clc" || token == "" {
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"error": "you don't have permissions to make that request",
+			})
+			return
+		}
+
+		//recolectamos el id que viene por path param
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil{
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+		}
+		
+		var req request
+		if err := ctx.ShouldBindJSON(&req); err != nil{
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error"	: err.Error(),
+			})
+			return
+		}
+
+		if req.Name == "" && req.Price == 0 {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error": "name or price must be send to update the product",
+			})
+			return
+		}
+
+		updatedProduct, err := h.service.UpdateNameAndPrice(int(id), req.Name, req.Price)
+		if err != nil {
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, updatedProduct)
+		
+	}
+}
+
+func (h *ProductHandler) Delete() gin.HandlerFunc{
+	return func(ctx *gin.Context) {
+		token := ctx.GetHeader("token")
+
+		if token != "123456clc" || token == "" {
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"error": "you don't have permissions to make that request",
+			})
+			return
+		}
+
+		//recolectamos el id que viene por path param
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil{
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+		}
+		
+		err0 := h.service.Delete(int(id))
+		if err0 != nil {
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"error": err0.Error(),
+			})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"info": fmt.Sprintf("The product with id %d has been removed", id),
+		})
 
 	}
 }

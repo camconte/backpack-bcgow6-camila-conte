@@ -22,7 +22,9 @@ type Repository interface {
 	GetAll() ([]Product, error)
 	Store(id int, name string, colour string, price float64, stock int, code string, published bool, createdAt string) (Product, error)
 	LastID() (int, error)
-	Update(id int, name string, colour string, price float64, stock int, code string, published bool, createdAt string) (Product, error)
+	Update(id int, name string, colour string, price float64, stock int, code string, published bool) (Product, error)
+	UpdateNameAndPrice(id int, name string, price float64) (Product, error)
+	Delete(id int) error
 }
 
 type repository struct{} //implementa los metodos de la interfaz
@@ -47,7 +49,7 @@ func (r *repository) LastID() (int, error){
 	return lastID, nil
 }
 
-func (r *repository) Update(id int, name string, colour string, price float64, stock int, code string, published bool, createdAt string) (Product, error){
+func (r *repository) Update(id int, name string, colour string, price float64, stock int, code string, published bool) (Product, error){
 	p := Product{
 		Name: name,
 		Colour: colour,
@@ -55,7 +57,6 @@ func (r *repository) Update(id int, name string, colour string, price float64, s
 		Stock: stock,
 		Code: code,
 		Published: published,
-		CreatedAt: createdAt,
 	}
 
 	//chequeamos si existe para actualizar el valor correspondiente
@@ -63,14 +64,60 @@ func (r *repository) Update(id int, name string, colour string, price float64, s
 	for i, product := range productsStorage {
 		if product.Id == id{
 			p.Id = id
+			p.CreatedAt = product.CreatedAt
 			productsStorage[i] = p
 			updated = true
 		}
 	}
 
 	if !updated {
-		return Product{}, fmt.Errorf("error: product with id %d not found", id)
+		return Product{}, fmt.Errorf("product with id %d not found", id)
 	}
 
 	return p, nil
+}
+
+func (r *repository) UpdateNameAndPrice(id int, name string, price float64) (Product, error){
+	var updatedProduct Product
+
+	updated := false
+
+	for _, product := range productsStorage {
+		if product.Id == id{
+			if name != "" {
+				product.Name = name
+				updated = true
+			}
+			if price != 0 {
+				product.Price = price
+				updated = true
+			}
+
+			updatedProduct = product
+		}
+	}
+
+	if !updated {
+		return updatedProduct, fmt.Errorf("product with id %d not found", id)
+	}
+
+	return updatedProduct, nil
+}
+
+func (r *repository) Delete(id int) error {
+	deleted := false
+
+	for i, product := range productsStorage {
+		if product.Id == id{
+			//lo eliminamos del storage
+			productsStorage = append(productsStorage[:i], productsStorage[i+1:]...)
+			deleted = true
+		}
+	}
+
+	if !deleted {
+		return fmt.Errorf("product with id %d not found", id)
+	}
+
+	return nil
 }
