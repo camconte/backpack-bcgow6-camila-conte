@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/camconte/backpack-bcgow6-camila-conte/GoWeb/conEstructura/internal/products"
+	"github.com/camconte/backpack-bcgow6-camila-conte/GoWeb/conEstructura/pkg/web"
 	"github.com/gin-gonic/gin"
 )
 
@@ -36,20 +37,16 @@ func (h *ProductHandler) GetAll() gin.HandlerFunc{
 		token := ctx.GetHeader("token")
 
 		if token != os.Getenv("TOKEN") {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "you don't have permissions to make that request",
-			})
+			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, "you don't have permissions to make that request"))
 			return
 		}
 
 		products, err := h.service.GetAll()
 		if err != nil{
-			ctx.JSON(http.StatusNotFound, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
 		}
 
-		ctx.JSON(http.StatusOK, products)
+		ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, products, ""))
 	}
 }
 
@@ -58,9 +55,7 @@ func (h *ProductHandler) Store() gin.HandlerFunc{
 		token := ctx.GetHeader("token")
 
 		if token != os.Getenv("TOKEN") {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "you don't have permissions to make that request",
-			})
+			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, "you don't have permissions to make that request"))
 			return
 		}
 
@@ -68,41 +63,32 @@ func (h *ProductHandler) Store() gin.HandlerFunc{
 
 		if err := ctx.ShouldBindJSON(&req); err != nil{
 			
-			//recorremos los errores detallados y los almacenamos para luego mostrarlos todos juntos
-			errorMessages := []string{}
-
 			if req.Name == "" {
-				errorMessages = append(errorMessages, "the name is required")
-			}
+				ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "the name is required"))
+				return			}
 			if req.Colour == "" {
-				errorMessages = append(errorMessages, "the colour is required")
-			}
+				ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "the colour is required"))
+				return			}
 			if req.Price == 0 {
-				errorMessages = append(errorMessages, "the price is required")
-			}
+				ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "the price is required"))
+				return			}
 			if req.Stock == 0 {
-				errorMessages = append(errorMessages, "the stock is required")
-			}
+				ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "the stock is required"))
+				return			}
 			if req.Code == "" {
-				errorMessages = append(errorMessages, "the code is required")
+				ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "the code is required"))
+				return
 			}
 
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"errors": errorMessages,
-			})
-
-			return
 		}
 
 		newProduct, err := h.service.Store(req.Name, req.Colour, req.Price, req.Stock, req.Code, req.Published)
 		if err != nil{
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
 			return
 		}
 
-		ctx.JSON(http.StatusOK, newProduct)
+		ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, newProduct, ""))
 
 	}
 }
@@ -112,58 +98,46 @@ func (h *ProductHandler) Update() gin.HandlerFunc{
 		token := ctx.GetHeader("token")
 
 		if token != os.Getenv("TOKEN") {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "you don't have permissions to make that request",
-			})
+			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, "you don't have permissions to make that request"))
 			return
 		}
 
 		//recolectamos el id que viene por path param
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil{
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, err.Error()))
+			return
 		}
 		
 		var req request
 
 		if err := ctx.ShouldBindJSON(&req); err != nil{
 			
-			//recorremos los errores detallados y los almacenamos para luego mostrarlos todos juntos
-			errorMessages := []string{}
-
 			if req.Name == "" {
-				errorMessages = append(errorMessages, "the name is required")
-			}
+				ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "the name is required"))
+				return			}
 			if req.Colour == "" {
-				errorMessages = append(errorMessages, "the colour is required")
-			}
+				ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "the colour is required"))
+				return			}
 			if req.Price == 0 {
-				errorMessages = append(errorMessages, "the price is required")
-			}
+				ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "the price is required"))
+				return			}
 			if req.Stock == 0 {
-				errorMessages = append(errorMessages, "the stock is required")
-			}
+				ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "the stock is required"))
+				return			}
 			if req.Code == "" {
-				errorMessages = append(errorMessages, "the code is required")
+				ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "the code is required"))
+				return
 			}
-
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"errors": errorMessages,
-			})
-			return
 		}
 
 		updatedProduct, err := h.service.Update(int(id), req.Name, req.Colour, req.Price, req.Stock, req.Code, req.Published)
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
 			return
 		}
 
-		ctx.JSON(http.StatusOK, updatedProduct)
+		ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, updatedProduct, ""))
 
 
 	}
@@ -174,44 +148,35 @@ func (h *ProductHandler) UpdateNameAndPrice() gin.HandlerFunc{
 		token := ctx.GetHeader("token")
 
 		if token != os.Getenv("TOKEN") {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "you don't have permissions to make that request",
-			})
+			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, "you don't have permissions to make that request"))
 			return
 		}
 
 		//recolectamos el id que viene por path param
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil{
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, err.Error()))
+			return
 		}
 		
 		var req request
 		if err := ctx.ShouldBindJSON(&req); err != nil{
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error"	: err.Error(),
-			})
+			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, err.Error()))
 			return
 		}
 
 		if req.Name == "" && req.Price == 0 {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": "name or price must be send to update the product",
-			})
+			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "name or price must be send to update the product"))
 			return
 		}
 
 		updatedProduct, err := h.service.UpdateNameAndPrice(int(id), req.Name, req.Price)
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
 			return
 		}
 
-		ctx.JSON(http.StatusOK, updatedProduct)
+		ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, updatedProduct, ""))
 		
 	}
 }
@@ -221,31 +186,24 @@ func (h *ProductHandler) Delete() gin.HandlerFunc{
 		token := ctx.GetHeader("token")
 
 		if token != os.Getenv("TOKEN") {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "you don't have permissions to make that request",
-			})
+			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, "you don't have permissions to make that request"))
 			return
 		}
 
 		//recolectamos el id que viene por path param
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil{
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, err.Error()))
+			return
 		}
 		
-		err0 := h.service.Delete(int(id))
-		if err0 != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{
-				"error": err0.Error(),
-			})
+		err = h.service.Delete(int(id))
+		if err != nil {
+			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
 			return
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{
-			"info": fmt.Sprintf("The product with id %d has been removed", id),
-		})
+		ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, fmt.Sprintf("The product with id %d has been removed", id), ""))
 
 	}
 }

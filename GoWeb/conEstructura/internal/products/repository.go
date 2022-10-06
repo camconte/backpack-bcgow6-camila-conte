@@ -7,16 +7,16 @@ import (
 
 type Product struct{
 	Id int `json:"id"`
-	Name string `json:"name" binding:"required"`
-	Colour string `json:"colour" binding:"required"`
-	Price float64 `json:"price" binding:"required"`
-	Stock int `json:"stock" binding:"required"`
-	Code string `json:"code" binding:"required"`
-	Published bool `json:"published" binding:"required"`
+	Name string `json:"name"`
+	Colour string `json:"colour"`
+	Price float64 `json:"price"`
+	Stock int `json:"stock"`
+	Code string `json:"code"`
+	Published bool `json:"published"`
 	CreatedAt string `json:"createdAt"`
 }
 
-var productsStorage []Product
+//var productsStorage []Product
 //var lastID int
 
 type Repository interface {
@@ -96,13 +96,20 @@ func (r *repository) Update(id int, name string, colour string, price float64, s
 		Published: published,
 	}
 
+	var productsArray []Product
+
+	err := r.db.Read(&productsArray)
+	if err != nil{
+		return Product{}, err
+	}
+
 	//chequeamos si existe para actualizar el valor correspondiente
 	updated := false
-	for i, product := range productsStorage {
+	for i, product := range productsArray {
 		if product.Id == id{
 			p.Id = id
 			p.CreatedAt = product.CreatedAt
-			productsStorage[i] = p
+			productsArray[i] = p
 			updated = true
 		}
 	}
@@ -111,15 +118,27 @@ func (r *repository) Update(id int, name string, colour string, price float64, s
 		return Product{}, fmt.Errorf("product with id %d not found", id)
 	}
 
+	//actualizamos el archivo
+	if err := r.db.Write(productsArray); err != nil{
+		return Product{}, err
+	}
+
 	return p, nil
 }
 
 func (r *repository) UpdateNameAndPrice(id int, name string, price float64) (Product, error){
 	var updatedProduct Product
 
+	var productsArray []Product
+
+	err := r.db.Read(&productsArray)
+	if err != nil{
+		return Product{}, err
+	}
+
 	updated := false
 
-	for _, product := range productsStorage {
+	for i, product := range productsArray {
 		if product.Id == id{
 			if name != "" {
 				product.Name = name
@@ -130,6 +149,8 @@ func (r *repository) UpdateNameAndPrice(id int, name string, price float64) (Pro
 				updated = true
 			}
 
+			productsArray[i] = product
+
 			updatedProduct = product
 		}
 	}
@@ -138,22 +159,40 @@ func (r *repository) UpdateNameAndPrice(id int, name string, price float64) (Pro
 		return updatedProduct, fmt.Errorf("product with id %d not found", id)
 	}
 
+	//actualizamos el archivo
+	if err := r.db.Write(productsArray); err != nil{
+		return Product{}, err
+	}
+
 	return updatedProduct, nil
 }
 
 func (r *repository) Delete(id int) error {
+	//leemos el archivo y almacenamos los datos en un array
+	var productsArray []Product
+
+	err := r.db.Read(&productsArray)
+	if err != nil{
+		return err
+	}
+
 	deleted := false
 
-	for i, product := range productsStorage {
+	for i, product := range productsArray {
 		if product.Id == id{
 			//lo eliminamos del storage
-			productsStorage = append(productsStorage[:i], productsStorage[i+1:]...)
+			productsArray = append(productsArray[:i], productsArray[i+1:]...)
 			deleted = true
 		}
 	}
 
 	if !deleted {
 		return fmt.Errorf("product with id %d not found", id)
+	}
+
+	//actualizamos el archivo
+	if err := r.db.Write(productsArray); err != nil{
+		return err
 	}
 
 	return nil
