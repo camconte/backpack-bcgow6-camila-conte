@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "name": "MacBook Pro",
+    "colour": "Grey",
+    "price": 1799.99,
+    "stock": 2,
+    "code": "1AF45",
+    "published": true,
+    "createdAt": "19-08-2022"
+  },
+  {
+    "id": 2,
+    "name": "MacBook Air",
+    "colour": "Gold",
+    "price": 1599.99,
+    "stock": 4,
+    "code": "1AF47G",
+    "published": false,
+    "createdAt": "30-08-2022"
+  },
+  {
+    "id": 3,
+    "name": "Logitech Mouse",
+    "colour": "Black",
+    "price": 90.1,
+    "stock": 5,
+    "code": "3FI89",
+    "published": true,
+    "createdAt": "19-09-2022"
+  },
+  {
+    "id": 4,
+    "name": "Redragon Headphones",
+    "colour": "Black",
+    "price": 179.99,
+    "stock": 2,
+    "code": "1AF89L",
+    "published": true,
+    "createdAt": "19-08-2022"
+  },
+  {
+    "id": 5,
+    "name": "Mate Pampa",
+    "colour": "Black",
+    "price": 100,
+    "stock": 4,
+    "code": "AF55L",
+    "published": true,
+    "createdAt": "05-10-2022"
+  }
+]

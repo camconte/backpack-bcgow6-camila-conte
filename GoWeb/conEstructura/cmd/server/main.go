@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/camconte/backpack-bcgow6-camila-conte/GoWeb/conEstructura/cmd/server/handler"
 	"github.com/camconte/backpack-bcgow6-camila-conte/GoWeb/conEstructura/internal/products"
+	"github.com/camconte/backpack-bcgow6-camila-conte/GoWeb/conEstructura/pkg/store"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -13,8 +14,9 @@ func main() {
 	if err != nil{
 		panic(err)
 	}
+	db := store.NewStore(store.FileType, "./products.json")
 
-	repository := products.NewRepository()
+	repository := products.NewRepository(db)
 	service := products.NewService(repository)
 	p := handler.NewProductHandler(service)
 

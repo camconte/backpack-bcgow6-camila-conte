@@ -2,6 +2,7 @@ package products
 
 import (
 	"fmt"
+	"github.com/camconte/backpack-bcgow6-camila-conte/GoWeb/conEstructura/pkg/store"
 )
 
 type Product struct{
@@ -16,7 +17,7 @@ type Product struct{
 }
 
 var productsStorage []Product
-var lastID int
+//var lastID int
 
 type Repository interface {
 	GetAll() ([]Product, error)
@@ -28,29 +29,63 @@ type Repository interface {
 }
 
 type repository struct{
-	db string
+	db store.Store
 } //implementa los metodos de la interfaz
 
 //devuelve el repo
-func NewRepository() Repository {
-	return &repository{}
+func NewRepository(db store.Store) Repository {
+	return &repository{
+		db: db,
+	}
 }
 
 func (r *repository) GetAll() ([]Product, error){
-	return productsStorage, nil
+	var productsArray []Product
+
+	err := r.db.Read(&productsArray)
+	if err != nil{
+		return nil, err
+	}
+	
+	return productsArray, nil
 }
 
 func (r *repository) Store(id int, name string, colour string, price float64, stock int, code string, published bool, createdAt string) (Product, error){
+	var productsArray []Product
+
+	err := r.db.Read(&productsArray)
+	if err != nil{
+		return Product{}, err
+	}
+
 	p := Product{id, name, colour, price, stock, code, published, createdAt}
-	productsStorage = append(productsStorage, p)
-	lastID = p.Id
+
+
+	productsArray = append(productsArray, p)
+
+	if err := r.db.Write(productsArray); err != nil{
+		return Product{}, err
+	}
+	
 	return p, nil
 }
 
 func (r *repository) LastID() (int, error){
-	return lastID, nil
+	var productsArray []Product
+
+	err := r.db.Read(&productsArray)
+	if err != nil{
+		return 0, err
+	}
+
+	if len(productsArray) == 0 {
+		return 0, nil
+	}
+
+	return productsArray[len(productsArray)-1].Id, nil
 }
 
+//faltan que actualicen el archivo los siguientes metodos:
 func (r *repository) Update(id int, name string, colour string, price float64, stock int, code string, published bool) (Product, error){
 	p := Product{
 		Name: name,
