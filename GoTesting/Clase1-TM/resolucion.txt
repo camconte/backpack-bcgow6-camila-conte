@@ -10,7 +10,7 @@ Por otro lado, en los test White Box si tenemos acceso al código y estamos ente
 
 Indicar las dimensiones de calidad prioritarias en MELI.
 - Funcionalidad (Functionality): garantizar que nuestro código cumpla con los requerimientos dados.
-- Rendimiento (Perfomance): verificar la correcta ejecucion de un proces. Por ejemplo, mientras más rápido sea mejor será la perfomance.
+- Rendimiento (Perfomance): verificar la correcta ejecucion de un proceso. Por ejemplo, mientras más rápido sea mejor será la perfomance.
 - Fiabilidad (Reliability): demostrar que funciona sin fallas durante un periodo específico.
 - Seguridad (Security): anticipar los posibles puntos de fallas que podrían ser atacados por un atacante.
 - Mantenibilidad (Maintainability): mantener un código limpio y documentado para que pueda ser modificado sin problemas en un futuro ya sea por nosotros mismos o por otra persona.
