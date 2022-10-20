@@ -19,8 +19,8 @@ func (s StubStore) Write(data interface{}) error {
 func (s StubStore) Read(data interface{}) error {
 
 	productsJSON, _ := json.Marshal(s.Products)
-	//almaceno lo que esta en el array de products en la data que me llega por parametro
 
+	//almaceno lo que esta en el array de products en la data que me llega por parametro
 	return json.Unmarshal(productsJSON, &data)
 }
 
@@ -68,6 +68,9 @@ type MockStore struct{
 }
 
 func (m *MockStore) Write(data interface{}) error {
+	//en lugar de usar el package json se podria "castear" con punteros. Ejemplo: data.(*[]Product)
+	/*dataProducts := data.(*[]Product)
+	m.Products = *dataProducts*/
 	dataJSON, _ := json.Marshal(data)
 	return json.Unmarshal(dataJSON, &m.Products)
 }
