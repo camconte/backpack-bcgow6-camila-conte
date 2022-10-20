@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "name": "MacBook Pro",
+    "colour": "Grey",
+    "price": 1799.99,
+    "stock": 2,
+    "code": "1AF45",
+    "published": true,
+    "createdAt": "19-08-2022"
+  },
+  {
+    "id": 2,
+    "name": "MacBook Air",
+    "colour": "Gold",
+    "price": 1599.99,
+    "stock": 4,
+    "code": "1AF47G",
+    "published": false,
+    "createdAt": "30-08-2022"
+  },
+  {
+    "id": 4,
+    "name": "Redragon Headphones Zeus",
+    "colour": "Pink",
+    "price": 179.99,
+    "stock": 5,
+    "code": "1AF89L",
+    "published": true,
+    "createdAt": "19-08-2022"
+  },
+  {
+    "id": 5,
+    "name": "Mate Pampa",
+    "colour": "Black",
+    "price": 150,
+    "stock": 4,
+    "code": "AF55L",
+    "published": true,
+    "createdAt": "05-10-2022"
+  },
+  {
+    "id": 6,
+    "name": "Mate Pampa",
+    "colour": "Black",
+    "price": 100,
+    "stock": 4,
+    "code": "AF55L",
+    "published": true,
+    "createdAt": "06-10-2022"
+  }
+]
