@@ -110,7 +110,7 @@ func TestUpdateNameAndPrice(t *testing.T) {
 
 	//act
 
-	productResult, _ := repository.UpdateNameAndPrice(productToUpdate.Id, productUpdated.Name, productUpdated.Price)
+	productResult, _ := repository.UpdateNameAndPrice(productToUpdate.Id, "New Coffee", 120)
 
 	//assert
 
