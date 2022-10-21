@@ -42,5 +42,8 @@ func main() {
 	pr.PATCH("/:id", p.UpdateNameAndPrice())
 	pr.DELETE("/:id", p.Delete())
 	
-	r.Run()
+	err = r.Run()
+	if err != nil {
+		panic(err)
+	}
 }
