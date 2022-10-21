@@ -36,7 +36,7 @@ func TestServiceIntegrationGetAll(t *testing.T) {
 
 
 	mockStorage := MockStorage{
-		dataMock: initialDatabase,
+		DataMock: initialDatabase,
 		ReadMethodWasCall: false,
 	}
 
@@ -58,7 +58,7 @@ func TestServiceIntegrationGetAllFail(t *testing.T) {
 	expectedErr := fmt.Errorf("an unexpected error has ocurred")
 
 	mockStorage := MockStorage{
-		dataMock:   nil,
+		DataMock:   nil,
 		errOnWrite: nil,
 		errOnRead:  fmt.Errorf("an unexpected error has ocurred"),
 	}
@@ -133,7 +133,7 @@ func TestServiceIntegrationStore(t *testing.T) {
 	}
 
 	mockStorage := MockStorage{
-		dataMock: initialDatabase,
+		DataMock: initialDatabase,
 	}
 
 	repository := NewRepository(&mockStorage)
@@ -155,7 +155,7 @@ func TestServiceIntegrationStore(t *testing.T) {
 
 	// Assert.
 	assert.Nil(t, err)
-	assert.Equal(t, expectedDatabase, mockStorage.dataMock)
+	assert.Equal(t, expectedDatabase, mockStorage.DataMock)
 	assert.Equal(t, productToCreate, productCreated)
 }
 
@@ -164,7 +164,7 @@ func TestServiceIntegrationStoreFailOnLastID(t *testing.T) {
 	expectedErr := fmt.Errorf("an error has ocurred")
 
 	mockStorage := MockStorage{
-		dataMock:   nil,
+		DataMock:   nil,
 		errOnRead:  fmt.Errorf("an error has ocurred"),
 		errOnWrite: nil,
 	}
@@ -197,7 +197,7 @@ func TestServiceIntegrationStoreFailOnRepository(t *testing.T) {
 
 	//Case 1 - errOnRead
 	mockStorageReadError := MockStorage{
-		dataMock:   nil,
+		DataMock:   nil,
 		errOnRead:  fmt.Errorf("an error has ocurred"),
 		errOnWrite: nil,
 	}
@@ -207,7 +207,7 @@ func TestServiceIntegrationStoreFailOnRepository(t *testing.T) {
 
 	//Case 2 - errOnWrite
 	mockStorageWriteError := MockStorage{
-		dataMock:   nil,
+		DataMock:   nil,
 		errOnRead:  nil,
 		errOnWrite: fmt.Errorf("an error has ocurred"),
 	}
@@ -253,7 +253,7 @@ func TestServiceIntegrationUpdateNameAndPrice(t *testing.T) {
 	productsStorage := []Product{productToUpdate}
 
 	myMockStore := MockStorage{
-		dataMock: productsStorage,
+		DataMock: productsStorage,
 	}
 
 	repository := NewRepository(&myMockStore)
@@ -289,7 +289,7 @@ func TestServiceIntegrationDelete(t *testing.T) {
 	expectedErr := fmt.Errorf("product with id 3 not found")
 
 	mockStorage := MockStorage{
-		dataMock: initialDatabase,
+		DataMock: initialDatabase,
 	}
 
 	repository := NewRepository(&mockStorage)

@@ -88,7 +88,7 @@ func TestGetAllFail(t *testing.T) {
 	expectedError := fmt.Errorf("an unexpected error has ocurred")
 	
 	myMockStorage := MockStorage{
-		dataMock: database,
+		DataMock: database,
 		errOnRead: fmt.Errorf("an unexpected error has ocurred"),
 		errOnWrite: nil,
 	}
@@ -200,7 +200,7 @@ func TestStore(t *testing.T) {
 	initialDatabase := []Product{product1, product2}
 
 	myMockStorage := MockStorage{
-		dataMock: initialDatabase,
+		DataMock: initialDatabase,
 	}
 
 	repository := NewRepository(&myMockStorage)
@@ -210,7 +210,7 @@ func TestStore(t *testing.T) {
 	
 	//assert
 	assert.Nil(t, err)
-	assert.Equal(t, database, myMockStorage.dataMock)
+	assert.Equal(t, database, myMockStorage.DataMock)
 	assert.Equal(t, product3, productCreated)
 
 }
@@ -220,7 +220,7 @@ func TestStoreFailReading(t *testing.T) {
 	expectedError := fmt.Errorf("an unexpected error has ocurred while reading")
 
 	myMockStorage := MockStorage{
-		dataMock: nil,
+		DataMock: nil,
 		errOnRead: fmt.Errorf("an unexpected error has ocurred while reading"),
 		errOnWrite: nil,
 	}
@@ -241,7 +241,7 @@ func TestStoreFailWriting(t *testing.T) {
 	expectedError := fmt.Errorf("an unexpected error has ocurred while writing")
 
 	myMockStorage := MockStorage{
-		dataMock: nil,
+		DataMock: nil,
 		errOnRead: nil,
 		errOnWrite: fmt.Errorf("an unexpected error has ocurred while writing"),
 	}
@@ -291,7 +291,7 @@ func TestLastID(t *testing.T) {
 	database = append(database, product3)
 
 	myMockStorage := MockStorage{
-		dataMock: database,
+		DataMock: database,
 	}
 
 	expectedID := 3
@@ -325,7 +325,7 @@ func TestLastIDFailReading(t *testing.T) {
 	database = append(database, product1)
 
 	myMockStorage := MockStorage{
-		dataMock: database,
+		DataMock: database,
 		errOnRead: fmt.Errorf("an unexpected error has ocurred"),
 		errOnWrite: nil,
 	}
@@ -346,7 +346,7 @@ func TestLastIDWithEmptyArray(t *testing.T) {
 	var database []Product
 
 	myMockStorage := MockStorage{
-		dataMock: database,
+		DataMock: database,
 		errOnRead: nil,
 		errOnWrite: nil,
 	}
@@ -380,7 +380,7 @@ func TestUpdateFailReading(t *testing.T) {
 	database = append(database, productToUpdate)
 
 	myMockStorage := MockStorage{
-		dataMock: database,
+		DataMock: database,
 		errOnRead: fmt.Errorf("an unexpected error has ocurred"),
 		errOnWrite: nil,
 	}
@@ -423,7 +423,7 @@ func TestUpdateFailWithIncorrectID(t *testing.T) {
 	database = append(database, productToUpdate)
 
 	myMockStorage := MockStorage{
-		dataMock: database,
+		DataMock: database,
 		errOnRead: nil,
 		errOnWrite: nil,
 	}
@@ -466,7 +466,7 @@ func TestUpdateFailWriting(t *testing.T) {
 	database = append(database, productToUpdate)
 
 	myMockStorage := MockStorage{
-		dataMock: database,
+		DataMock: database,
 		errOnRead: nil,
 		errOnWrite: fmt.Errorf("an unexpected error has ocurred"),
 	}
@@ -504,7 +504,7 @@ func TestUpdateNameAndPriceFailReading(t *testing.T) {
 	}
 
 	myMockStorage := MockStorage{
-		dataMock: database,
+		DataMock: database,
 		errOnRead: fmt.Errorf("an unexpected error has ocurred while reading"),
 		errOnWrite: nil,
 	}
@@ -532,7 +532,7 @@ func TestUpdateNameAndPriceFailWithIncorrectID(t *testing.T) {
 	}
 
 	myMockStorage := MockStorage{
-		dataMock: database,
+		DataMock: database,
 		errOnRead: nil,
 		errOnWrite: nil,
 	}
@@ -560,7 +560,7 @@ func TestUpdateNameAndPriceFailWriting(t *testing.T) {
 	}
 
 	myMockStorage := MockStorage{
-		dataMock: database,
+		DataMock: database,
 		errOnRead: nil,
 		errOnWrite: fmt.Errorf("an unexpected error has ocurred while writing"),
 	}
@@ -588,7 +588,7 @@ func TestDeleteFailReading(t *testing.T) {
 	}
 
 	myMockStorage := MockStorage{
-		dataMock: database,
+		DataMock: database,
 		errOnRead: fmt.Errorf("an unexpected error has ocurred while reading"),
 		errOnWrite: nil,
 	}
@@ -615,7 +615,7 @@ func TestDeleteFailWriting(t *testing.T) {
 	}
 
 	myMockStorage := MockStorage{
-		dataMock: database,
+		DataMock: database,
 		errOnRead: nil,
 		errOnWrite: fmt.Errorf("an unexpected error has ocurred while writing"),
 	}

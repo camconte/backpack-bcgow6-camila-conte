@@ -1,7 +1,9 @@
-package products
+package mocks
+
+import "github.com/camconte/backpack-bcgow6-camila-conte/GoTesting/Clase2-TM/internal/products"
 
 type MockStorage struct{
-	DataMock []Product
+	DataMock []products.Product
 	ReadMethodWasCall bool
 	errOnRead error
 	errOnWrite error
@@ -12,7 +14,7 @@ func (m *MockStorage) Write(data interface{}) error {
 		return m.errOnWrite
 	}
 
-	dataProducts := data.([]Product)
+	dataProducts := data.([]products.Product)
 	m.DataMock = dataProducts
 	return nil
 }
@@ -22,9 +24,8 @@ func (m *MockStorage) Read(data interface{}) error {
 		return m.errOnRead
 	}
 	
-	dataProducts := data.(*[]Product)
+	dataProducts := data.(*[]products.Product)
 	*dataProducts = m.DataMock
 	m.ReadMethodWasCall = true
 	return nil
 }
-
