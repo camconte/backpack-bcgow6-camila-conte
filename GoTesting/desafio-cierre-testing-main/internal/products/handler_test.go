@@ -11,7 +11,7 @@ import (
 )
 
 func createServer(mockRepository MockRepository) *gin.Engine {
-	gin.SetMode(gin.ReleaseMode)
+	//gin.SetMode(gin.ReleaseMode)
 
 	service := NewService(&mockRepository)
 	handler := NewHandler(service)
@@ -28,6 +28,7 @@ func createRequestTest(method string, url string, body string) (*http.Request, *
 	req := httptest.NewRequest(method, url, bytes.NewBuffer([]byte(body)))
 	req.Header.Add("Content-Type", "application/json")
 
+	//el httptest.NewRecorder() guarda la response que obtiene el servidor
 	return req, httptest.NewRecorder()
 }
 
