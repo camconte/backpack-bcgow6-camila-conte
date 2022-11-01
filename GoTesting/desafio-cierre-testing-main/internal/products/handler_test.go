@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
-
+//estos son test de integracion
 func createServer(mockRepository MockRepository) *gin.Engine {
 	//gin.SetMode(gin.ReleaseMode)
 
@@ -70,6 +70,7 @@ func TestGetProductsSuccess(t *testing.T) {
 
 	//assert
 	assert.Equal(t, http.StatusOK, responseRecorder.Code)
+	assert.Equal(t, mockRepository.Data, responseRecorder.Body)
 }
 
 func TestGetProductsFail(t *testing.T) {

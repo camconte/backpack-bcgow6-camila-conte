@@ -4,6 +4,7 @@ import "errors"
 
 type MockRepository struct{
 	Data []Product
+	
 }
 
 func (m *MockRepository) GetAllBySeller(sellerID string) ([]Product, error){
