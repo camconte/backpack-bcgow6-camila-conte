@@ -7,6 +7,7 @@ type Service interface {
 	GetByName(name string) (domain.Product, error)
 	GetAll() ([]domain.Product, error)
 	GetProductsByWarehouse(warehouseId int) ([]domain.Product, error)
+	Update(domain.Product, int) error
 	Delete(id int) error
 }
 
@@ -32,6 +33,10 @@ func (s *service) GetByName(name string) (domain.Product, error) {
 
 func (s *service) GetAll() ([]domain.Product, error){
 	return s.repository.GetAll()
+}
+
+func (s *service) Update(product domain.Product, id int) error {
+	return s.repository.Update(product, id)
 }
 
 func (s *service) Delete(id int) error{

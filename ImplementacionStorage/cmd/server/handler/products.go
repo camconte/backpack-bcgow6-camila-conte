@@ -17,6 +17,7 @@ type request struct {
 	ProductType  string  `json:"tipo" binding:"required"`
 	Count int     `json:"cantidad" binding:"required"`
 	Price float64 `json:"precio" binding:"required"`
+	WarehouseId int `json:"warehouse_id" bindind:"required"`
 }
 
 type requestName struct {
@@ -106,6 +107,42 @@ func (s *Product) GetAll() gin.HandlerFunc{
 		}
 
 		c.JSON(http.StatusOK, web.NewResponse(products, "", http.StatusOK))
+	}
+}
+
+func (s *Product) Update() gin.HandlerFunc{
+	return func(c *gin.Context) {
+
+		paramId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, web.NewResponse(nil, err.Error(), http.StatusBadRequest))
+			return
+		}
+
+		var req request
+		if err := c.ShouldBindJSON(&req); err != nil {
+			if strings.Contains(err.Error(), "'required' tag") {
+				c.JSON(http.StatusUnprocessableEntity, err.Error())
+				return
+			}
+
+			c.JSON(http.StatusBadRequest, web.NewResponse(nil, err.Error(), http.StatusBadRequest))
+			return
+		}
+
+		product := domain.Product(req)
+
+		err = s.service.Update(product, int(paramId))
+		if err != nil {
+			c.JSON(http.StatusConflict, err.Error())
+			return
+		}
+
+		product.Id = int(paramId)
+
+		c.JSON(http.StatusCreated, web.NewResponse(product, "", http.StatusOK))
+
+
 	}
 }
 

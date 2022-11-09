@@ -12,6 +12,7 @@ type Repository interface {
 	GetByName(name string) (domain.Product, error)
 	GetAll() ([]domain.Product, error)
 	GetProductsByWarehouse(warehouseId int) ([]domain.Product, error)
+	Update(product domain.Product, id int) error 
 	Delete(id int) error 
 }
 
@@ -24,13 +25,15 @@ type repository struct {
 }
 
 const (
-	STORE_PRODUCT = "INSERT INTO products (name, type, count, price) VALUES (?,?,?,?)"
+	STORE_PRODUCT = "INSERT INTO products (name, type, count, price, id_warehouse) VALUES (?,?,?,?,?)"
 
 	GET_BY_NAME = "SELECT id, name, type, count, price FROM products WHERE name = ?;"
 
 	GET_ALL = "SELECT id, name, type, count, price FROM products"
 
 	DELETE_PRODUCT = "DELETE FROM products WHERE id = ?"
+
+	UPDATE_PRODUCT = "UPDATE products SET name=?, type=?, count=?, price=? WHERE id=?"
 
 	GET_ALL_PRODUCTS_BY_WAREHOUSE = "SELECT p.id, p.name, p.type, p.count, p.price FROM products p INNER JOIN warehouses w ON p.id_warehouse = w.id WHERE w.id = ?"
 )
@@ -66,7 +69,7 @@ func (r *repository) Store(p domain.Product) (int, error) {
 	}
 	defer stmt.Close()
 
-	result, err := stmt.Exec(p.Name, p.ProductType, p.Count, p.Price)
+	result, err := stmt.Exec(p.Name, p.ProductType, p.Count, p.Price, p.WarehouseId)
 	if err != nil {
 		return 0, fmt.Errorf("error al ejecutar la consulta - error %v", err)
 	}
@@ -120,6 +123,31 @@ func (r *repository) GetAll() ([]domain.Product, error){
 	}
 
 	return products, nil
+}
+
+func (r *repository) Update(product domain.Product, id int) error {
+	stm, err := r.db.Prepare(UPDATE_PRODUCT)
+	if err != nil {
+		return err
+	}
+	defer stm.Close()
+
+
+	result, err := stm.Exec(product.Name, product.ProductType, product.Count, product.Price, id)
+	if err != nil {
+		return err
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affected < 1 {
+		return fmt.Errorf("error: no affected rows")
+	}
+
+	return nil
 }
 
 

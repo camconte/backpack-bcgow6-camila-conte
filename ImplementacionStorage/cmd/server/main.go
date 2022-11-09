@@ -25,6 +25,8 @@ func main() {
 
 	pr.GET("/:id", p.GetProductsByWarehouse())
 
+	pr.PUT("/:id", p.Update())
+
 	pr.DELETE("/:id", p.Delete())
 
 	engine.Run()
