@@ -3,45 +3,19 @@ package db
 import (
 	"database/sql"
 	"log"
+	"os"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 )
 
-var StorageDB *sql.DB
-
-func init(){
-	//Cargamos el archivo de variables
-	/* err := godotenv.Load()
+func ConnectDatabase() (engine *gin.Engine, db *sql.DB) {
+	err := godotenv.Load("../../.env")
 	if err != nil {
-		log.Fatal("Error: Loading .env")
-	} */
-
-	//Seteamos la configuracion de la conexion a la base de datos
-	configDB := mysql.Config{
-		User:   "root",
-		Passwd: "",
-		Net:    "tcp",
-		Addr:   "127.0.0.1:3306",
-		DBName: "storage",
+		log.Fatal("Error: loading .env")
 	}
 
-	var err error
-	//abrimos la conexion
-	StorageDB, err = sql.Open("mysql", configDB.FormatDSN())
-	if err != nil {
-		log.Fatal(err)
-	}
-
-}
-
-/* func ConnectDatabase() (engine *gin.Engine, db *sql.DB) {
-	//Cargamos el archivo de variables
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error: Loading .env")
-	}
-
-	//Seteamos la configuracion de la conexion a la base de datos
 	configDB := mysql.Config{
 		User:   os.Getenv("DBUSER"),
 		Passwd: os.Getenv("DBPASS"),
@@ -50,7 +24,6 @@ func init(){
 		DBName: os.Getenv("DBNAME"),
 	}
 
-	//abrimos la conexion
 	db, err = sql.Open("mysql", configDB.FormatDSN())
 	if err != nil {
 		log.Fatal(err)
@@ -59,4 +32,4 @@ func init(){
 	engine = gin.Default()
 
 	return engine, db
-} */
+}
