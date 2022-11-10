@@ -4,8 +4,10 @@ import (
 	"clase1/internal/domain"
 	"clase1/pkg/utils"
 	"errors"
+	"regexp"
 	"testing"
 
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,16 +16,152 @@ var (
 )
 
 var product_test = domain.Product{
+	Id: 1,
 	Name: "New Product",
 	ProductType: "etc",
 	Count: 11,
 	Price: 120,
+	WarehouseId: 1,
 }
 
 /*Si desde el repo verifican algun error real de sql, deberían utilizar ese error en especifico a retornar en el mock para llegar a verificar ese caso en particular.
 Si le aplican un wrapper personalizado al error desde la capa repo, tendrían que verificar con ese ultimo error en el assert.*/
 
-/* --------------------------- EJEMPLOS CON MOVIE --------------------------- */
+func TestStoreProduct(t *testing.T) {
+	//arrange
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	t.Run("Store Ok", func(t *testing.T) {
+
+		//como se utiliza el Prepare y el Exec en el metodo, debemos mockear ambos
+		mock.ExpectPrepare(regexp.QuoteMeta(STORE_PRODUCT))
+		//NewResult nos devuelve un objeto que contiene el ultimo id (1) y la cantidad de rows afectadas (1) 
+		mock.ExpectExec(regexp.QuoteMeta(STORE_PRODUCT)).WillReturnResult(sqlmock.NewResult(1, 1))
+
+		columns := []string{"id", "name", "type", "count", "price"}
+		rows := sqlmock.NewRows(columns)
+		rows.AddRow(product_test.Id, product_test.Name, product_test.ProductType, product_test.Count, product_test.Price)
+
+		mock.ExpectQuery(regexp.QuoteMeta(GET_BY_NAME)).WithArgs(product_test.Name).WillReturnRows(rows)
+
+		repository := NewRepository(db)
+
+		//act
+		newID, err := repository.Store(product_test)
+		assert.NoError(t, err)
+
+		productResult, err := repository.GetByName(product_test.Name)
+		assert.NoError(t, err)
+
+		//assert
+		assert.NotNil(t, productResult)
+		assert.Equal(t, product_test.Id, newID)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("Store Fail", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+
+		mock.ExpectPrepare(regexp.QuoteMeta(STORE_PRODUCT))
+		//en el willReturn... nosotros determinamos qué queremos que devuelva la bd mockeada
+		mock.ExpectExec(regexp.QuoteMeta(STORE_PRODUCT)).WillReturnError(ERROR_FORZADO)
+
+		repository := NewRepository(db)
+
+		//act
+		id, err := repository.Store(product_test)
+
+		//assert
+		assert.Error(t, err)
+		assert.Empty(t, id)
+
+		//mock.ExpectationsWereMet() valida que todos los expects declarados se hayan ejecutado, incluyendo los 'WithArgs' donde espera que la funcion del mock reciba los
+		// valores exactos que declaraste desde el test
+		//verificar que en ninguna de todas los expect que definimos en el mock halla ocurrido algún error.
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+} 
+
+func TestGetByName(t *testing.T) {
+	//Arrange
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	columns := []string{"id", "name", "type", "count", "price"}
+	rows := sqlmock.NewRows(columns)
+
+	rows.AddRow(product_test.Id, product_test.Name, product_test.ProductType, product_test.Count, product_test.Price)
+	mock.ExpectQuery(regexp.QuoteMeta(GET_BY_NAME)).WithArgs(product_test.Name).WillReturnRows(rows)
+
+	repo := NewRepository(db)
+	//act
+	productResult, err := repo.GetByName(product_test.Name)
+
+	//assert
+	assert.NoError(t, err)
+	assert.Equal(t, product_test.Name, productResult.Name)
+	assert.NoError(t, mock.ExpectationsWereMet())
+} 
+
+func TestUpdateProduct(t *testing.T) {
+	//arrange
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	//primero lo guardamos
+	mock.ExpectPrepare(regexp.QuoteMeta(STORE_PRODUCT))
+	mock.ExpectExec(regexp.QuoteMeta(STORE_PRODUCT)).WillReturnResult(sqlmock.NewResult(1, 1))
+
+	columns := []string{"id", "name", "type", "count", "price"}
+	rows := sqlmock.NewRows(columns)
+	rows.AddRow(product_test.Id, product_test.Name, product_test.ProductType, product_test.Count, product_test.Price)
+	repository := NewRepository(db)
+
+	//act
+	newID, err := repository.Store(product_test)
+	assert.NoError(t, err)
+
+	productToUpdate := domain.Product{
+		Id: newID,
+		Name: "test",
+		ProductType: "test",
+		Count: 1,
+		Price: 1,
+	}
+	//actualizamos
+	mock.ExpectPrepare(regexp.QuoteMeta(UPDATE_PRODUCT))
+	mock.ExpectExec(regexp.QuoteMeta(UPDATE_PRODUCT)).WithArgs(productToUpdate.Name, productToUpdate.ProductType, productToUpdate.Count, productToUpdate.Price, productToUpdate.Id).WillReturnResult(sqlmock.NewResult(0, 1))
+
+	//le determinamos que queremos que devuelva el producto actualizado
+	rowsUpdated := sqlmock.NewRows(columns)
+	rowsUpdated.AddRow(productToUpdate.Id, productToUpdate.Name, productToUpdate.ProductType, productToUpdate.Count, productToUpdate.Price)
+	mock.ExpectQuery(regexp.QuoteMeta(GET_BY_NAME)).WithArgs(productToUpdate.Name).WillReturnRows(rowsUpdated)
+
+
+	//act
+	err = repository.Update(productToUpdate, productToUpdate.Id)
+	assert.NoError(t, err)
+
+	productResult, err := repository.GetByName(productToUpdate.Name)
+	assert.NoError(t, err)
+
+	//assert
+	assert.NotNil(t, productResult)
+	assert.Equal(t, productToUpdate, productResult)
+	assert.NoError(t, mock.ExpectationsWereMet())
+
+
+	
+} 
+
+/* --------------------------- EJEMPLOS SQLMOCK CON MOVIE --------------------------- */
+
 /* func TestGetOneWithContext(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
@@ -54,7 +192,7 @@ Si le aplican un wrapper personalizado al error desde la capa repo, tendrían qu
 	assert.NoError(t, err)
 	defer db.Close()
 
-	//declaramos lo que le vamos a pasar
+	//declaramos las columnas que le vamos a pasar
 	columns := []string{"id"}
 	rows := sqlmock.NewRows(columns)
 
@@ -225,7 +363,8 @@ func TestStoreProductTXDB_Ok(t *testing.T) {
 	assert.NotEmpty(t, productResult)
 	assert.Equal(t, productExpected.Id, productResult.Id)
 } 
-/* ----------- hacer test txdb de getone y temrinar con los demas tests con sqlmock ------------- */
+
+
 
 /* func Test_RepositorySave_txdb(t *testing.T) {
 	//seria necesario crear el package utils para probar este test
