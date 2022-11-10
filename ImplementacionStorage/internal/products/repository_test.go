@@ -49,6 +49,13 @@ func TestStoreProduct(t *testing.T) {
 		repository := NewRepository(db)
 
 		//act
+		/* -------------------------------------------------------------------------- */
+		/* LAS SENTENCIAS NO TIENEN NADA QUE VER UNA CON LA OTRA, NO SE PERSISTE 
+			EN UN STORAGE, LA SENTENCIA DE STORE DEVUELVE LO QUE NOSOTROS 
+			LE INDICAMOS(NEW RESULT CON EL LAST ID Y ROWS AFFECTED)                   */
+		/* -------------------------------------------------------------------------- */
+		
+
 		newID, err := repository.Store(product_test)
 		assert.NoError(t, err)
 
@@ -92,10 +99,13 @@ func TestGetByName(t *testing.T) {
 	assert.NoError(t, err)
 	defer db.Close()
 
+	//le indicamos el formato de las rows que va a devolver
 	columns := []string{"id", "name", "type", "count", "price"}
 	rows := sqlmock.NewRows(columns)
 
+	//le indicamos la fila que queremos que devuelva la sentencia
 	rows.AddRow(product_test.Id, product_test.Name, product_test.ProductType, product_test.Count, product_test.Price)
+	
 	mock.ExpectQuery(regexp.QuoteMeta(GET_BY_NAME)).WithArgs(product_test.Name).WillReturnRows(rows)
 
 	repo := NewRepository(db)
@@ -114,51 +124,43 @@ func TestUpdateProduct(t *testing.T) {
 	assert.NoError(t, err)
 	defer db.Close()
 
-	//primero lo guardamos
-	mock.ExpectPrepare(regexp.QuoteMeta(STORE_PRODUCT))
-	mock.ExpectExec(regexp.QuoteMeta(STORE_PRODUCT)).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectPrepare(regexp.QuoteMeta(UPDATE_PRODUCT))
+	mock.ExpectExec(regexp.QuoteMeta(UPDATE_PRODUCT)).WithArgs(product_test.Name, product_test.ProductType, product_test.Count, product_test.Price, product_test.Id).WillReturnResult(sqlmock.NewResult(0, 1))
 
-	columns := []string{"id", "name", "type", "count", "price"}
-	rows := sqlmock.NewRows(columns)
-	rows.AddRow(product_test.Id, product_test.Name, product_test.ProductType, product_test.Count, product_test.Price)
 	repository := NewRepository(db)
 
 	//act
-	newID, err := repository.Store(product_test)
-	assert.NoError(t, err)
-
-	productToUpdate := domain.Product{
-		Id: newID,
-		Name: "test",
-		ProductType: "test",
-		Count: 1,
-		Price: 1,
-	}
-	//actualizamos
-	mock.ExpectPrepare(regexp.QuoteMeta(UPDATE_PRODUCT))
-	mock.ExpectExec(regexp.QuoteMeta(UPDATE_PRODUCT)).WithArgs(productToUpdate.Name, productToUpdate.ProductType, productToUpdate.Count, productToUpdate.Price, productToUpdate.Id).WillReturnResult(sqlmock.NewResult(0, 1))
-
-	//le determinamos que queremos que devuelva el producto actualizado
-	rowsUpdated := sqlmock.NewRows(columns)
-	rowsUpdated.AddRow(productToUpdate.Id, productToUpdate.Name, productToUpdate.ProductType, productToUpdate.Count, productToUpdate.Price)
-	mock.ExpectQuery(regexp.QuoteMeta(GET_BY_NAME)).WithArgs(productToUpdate.Name).WillReturnRows(rowsUpdated)
-
-
-	//act
-	err = repository.Update(productToUpdate, productToUpdate.Id)
-	assert.NoError(t, err)
-
-	productResult, err := repository.GetByName(productToUpdate.Name)
-	assert.NoError(t, err)
-
+	err = repository.Update(product_test, product_test.Id)
+	
+	
 	//assert
-	assert.NotNil(t, productResult)
-	assert.Equal(t, productToUpdate, productResult)
+	assert.NoError(t, err)
 	assert.NoError(t, mock.ExpectationsWereMet())
-
-
 	
 } 
+
+func TestDeleteProduct(t *testing.T) {
+	//arrange
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	mock.ExpectPrepare(regexp.QuoteMeta(DELETE_PRODUCT))
+	mock.ExpectExec(regexp.QuoteMeta(DELETE_PRODUCT)).WithArgs(product_test.Id).WillReturnResult(sqlmock.NewResult(0, 1))
+
+	repository := NewRepository(db)
+
+	//act
+	err = repository.Delete(product_test.Id)
+	
+	
+	//assert
+	assert.NoError(t, err)
+	assert.NoError(t, mock.ExpectationsWereMet())
+	
+} 
+
+
 
 /* --------------------------- EJEMPLOS SQLMOCK CON MOVIE --------------------------- */
 
